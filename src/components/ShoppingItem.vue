@@ -52,11 +52,7 @@ export default {
         checked: false,
         author: "LMC"
       }),
-    },
-    index: {
-      type: Number,
-      default: 1,
-    },
+    }
   },
   components: {
     IonItem,
@@ -74,12 +70,12 @@ export default {
       if (props.item.checked === false) itemCheck.value = true;
       else itemCheck.value = false;
 
-      emit("updateCheck", [props.index, itemCheck.value]);
+      emit("updateCheck", [props.item.value, itemCheck.value]);
       itemSlide.value.$el.close();
     };
 
     const DeleteItem = () => {
-      emit("deleteItem", props.index);
+      emit("deleteItem", props.item.value);
       itemSlide.value.$el.close();
     };
 

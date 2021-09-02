@@ -4,8 +4,8 @@
       <ion-toolbar>
         <ion-title>
           <ion-icon :icon="iconTitle" /> Peter's Cart
-          <ion-icon :icon="iconTitle" /></ion-title
-        >
+          <ion-icon :icon="iconTitle"
+        /></ion-title>
         <ion-buttons slot="end">
           <ion-button @click="ClearAll">
             <ion-icon :icon="trash"></ion-icon
@@ -16,30 +16,28 @@
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
-    <ion-content :fullscreen="true" ref="itemList">
+    <ion-content :fullscreen="true" ref="itemList" style="margin-bottom: 2rem">
       <ion-list class="backgroundPg" :class="randomImg">
         <ShoppingItem
           v-for="(item, index) in SortedList"
           :item="item"
-          :index="index"
           :key="index"
           @updateCheck="UpdateCheckStatus($event)"
           @deleteItem="DeleteItem($event)"
         ></ShoppingItem>
       </ion-list>
     </ion-content>
-    <div>
-      <ion-item slot="bottom">
+    <ion-toolbar>
+      <ion-item>
         <ion-input
           type="text"
           placeholder="Buy Carrots * 100"
           v-model="itemString"
           @keyup.enter="AddItem"
-          @ionFocus="ScrollListToBottom"
         ></ion-input>
         <ion-buttons @click="AddItem" color="Secondary"><b>Add</b></ion-buttons>
       </ion-item>
-    </div>
+    </ion-toolbar>
   </ion-page>
 </template>
 
@@ -86,33 +84,40 @@ export default {
     const sortType = ref(false);
     const itemList = ref();
     const iconTitle = "assets/icon/carrot.svg";
-    const docId = ref("MKtgZAOGbZzZysAWhOSu");
     const randomImg = ref();
 
     const ReadFireStore = () => {
-      db.collection("lists").onSnapshot(
-        { includeMetadataChanges: true },
-        (snapshot) => {
-          let docs = snapshot.docs.map((doc) => doc.data());
-          docs.forEach((doc) => {
-            docId.value = doc.id;
-            items.value = [...doc.list];
-          });
-
-          // var source = snapshot.metadata.fromCache ? "local cache" : "server";
-          // console.log("Data came from " + source);
-        }
-      );
+      db.collection("lists")
+        .doc("cart")
+        .onSnapshot((snapshot) => {
+          items.value = [...snapshot.get("list")];
+        });
     };
 
     onBeforeMount(() => {
       ReadFireStore();
       randomImg.value = "img" + Math.floor(Math.random() * 14);
-      console.log(randomImg.value)
+      console.log(randomImg.value);
     });
 
-    const AddItem = () => {
+    const AddItem = async () => {
       if (itemString.value.length == 0) {
+        return;
+      }
+      itemString.value = itemString.value.trim();
+      //check for duplication
+      const checkDuplication = items.value.filter(
+        (item) => item.value.toLowerCase() === itemString.value.toLowerCase()
+      );
+      if (checkDuplication.length > 0) {
+        const alert = await alertController.create({
+          header: "Alert",
+          message: "Duplicated item found",
+          buttons: ["Ok"],
+        });
+        await alert.present();
+
+        itemString.value = "";
         return;
       }
 
@@ -122,10 +127,9 @@ export default {
         author: userInitial.value,
       };
       //add into list
-      items.value.push(itemObj);
+      items.value.unshift(itemObj);
       SaveToFirebase();
       itemString.value = "";
-      itemList.value.$el.scrollToBottom(0.5);
     };
 
     const SaveToFirebase = () => {
@@ -143,8 +147,10 @@ export default {
         });
     };
 
-    const DeleteItem = (id) => {
-      items.value.splice(id, 1);
+    const DeleteItem = (itemVal) => {
+      //delete by word
+      let valueId = items.value.findIndex((item) => item.value == itemVal);
+      items.value.splice(valueId, 1);
       SaveToFirebase();
     };
 
@@ -173,23 +179,19 @@ export default {
     };
 
     const UpdateCheckStatus = (val) => {
-      let id = val[0];
+      let itemVal = val[0];
       let bool = val[1];
-      items.value[id].checked = bool;
+      let valueId = items.value.findIndex((item) => item.value == itemVal);
+      items.value[valueId].checked = bool;
       SaveToFirebase();
     };
 
     const TriggerSort = () => {
-      console.log(sortType.value);
       if (sortType.value == false) {
         sortType.value = true;
       } else {
         sortType.value = false;
       }
-    };
-
-    const ScrollListToBottom = () => {
-      setTimeout(itemList.value.$el.scrollToBottom(), 1500);
     };
 
     const SortedList = computed(() => {
@@ -208,13 +210,12 @@ export default {
       sortType,
       TriggerSort,
       ClearAll,
-      ScrollListToBottom,
       SortedList,
       filter,
       trash,
       iconTitle,
       userInitial,
-      randomImg
+      randomImg,
     };
   },
 };
@@ -222,7 +223,6 @@ export default {
 
 <style scoped>
 .backgroundPg {
-  height: 100%;
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
