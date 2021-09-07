@@ -16,8 +16,8 @@
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
-    <ion-content :fullscreen="true" ref="itemList" style="margin-bottom: 2rem">
-      <ion-list class="backgroundPg" :class="randomImg">
+    <ion-content ref="itemList" style="margin-bottom: 2rem" :class="randomImg">
+      <ion-list class="totalTransparent">
         <ShoppingItem
           v-for="(item, index) in SortedList"
           :item="item"
@@ -27,6 +27,7 @@
         ></ShoppingItem>
       </ion-list>
     </ion-content>
+
     <ion-toolbar>
       <ion-item>
         <ion-input
@@ -222,50 +223,60 @@ export default {
 </script>
 
 <style scoped>
-.backgroundPg {
-  height: 100%;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-}
 
 .img1 {
-  background-image: url("../assets/img1.jpg");
+  --background: url("../assets/img1.jpg");
 }
 .img2 {
-  background-image: url("../assets/img2.jpg");
+  --background: url("../assets/img2.jpg");
 }
 .img3 {
-  background-image: url("../assets/img3.jpg");
+  --background: url("../assets/img3.jpg");
 }
 .img4 {
-  background-image: url("../assets/img4.jpg");
+  --background: url("../assets/img4.jpg");
 }
 .img5 {
-  background-image: url("../assets/img5.jpg");
+  --background: url("../assets/img5.jpg");
 }
 .img6 {
-  background-image: url("../assets/img6.jpg");
+  --background: url("../assets/img6.jpg");
 }
 .img7 {
-  background-image: url("../assets/img7.jpg");
+  --background: url("../assets/img7.jpg");
 }
 .img8 {
-  background-image: url("../assets/img8.jpg");
+  --background: url("../assets/img8.jpg");
 }
 .img9 {
-  background-image: url("../assets/img9.jpg");
+  --background: url("../assets/img9.jpg");
 }
 .img10 {
-  background-image: url("../assets/img10.jpg");
+  --background: url("../assets/img10.jpg");
 }
 .img11 {
-  background-image: url("../assets/img11.jpg");
+  --background: url("../assets/img11.jpg");
 }
 .img12 {
-  background-image: url("../assets/img12.jpg");
+  --background: url("../assets/img12.jpg");
 }
 .img13 {
-  background-image: url("../assets/img13.jpg");
+  --background: url("../assets/img13.jpg");
 }
+
+.totalTransparent {
+  opacity: 0.75;
+}
+
+ion-item {
+  --background: rgba(255,255,255,1);
+  --ion-color-base: rgba(255,255,255,0.5) !important;
+}
+
+ion-content{
+  --background-position: center;
+  --background-repeat: no-repeat;
+  --background-size: auto;  
+}
+
 </style>
